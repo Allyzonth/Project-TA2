@@ -22,7 +22,7 @@ def load_templates(template_dir='edited/'):
     return templates
 
 # Halaman sambutan
-def welcome_page():
+def welcome_page(): #fungsi halaman welcome
     st.title("Selamat Datang di Aplikasi Deteksi Bibit Lele")
     st.write("Klik tombol di bawah ini untuk memulai.")
     
