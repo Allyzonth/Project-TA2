@@ -6,9 +6,78 @@ import os
 from scipy import ndimage
 import datetime
 import pandas as pd
+import base64  # Import base64 untuk encoding gambar
 
-if 'page' not in st.session_state:
-    st.session_state['page'] = 'welcome'
+# Load CSS untuk styling
+def load_css():
+    st.markdown(
+        """
+        <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .title {
+            text-align: center;
+            color: #4CAF50;
+            margin-top: 20px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .stButton>button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 24px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 0 auto; /* Center the button horizontally */
+            display: block; /* Make the button a block element */
+        }
+        .center-logo {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .center-logo img {
+            width: 200px;
+            max-width: 100%;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .upload-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .history-section {
+            margin-top: 20px;
+        }
+        @media (max-width: 600px) {
+            .title {
+                font-size: 24px;
+            }
+            .subtitle {
+                font-size: 18px;
+            }
+            .stButton>button {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
 # Fungsi untuk memuat template
 def load_templates(template_dir='edited/'):
@@ -22,17 +91,29 @@ def load_templates(template_dir='edited/'):
     return templates
 
 # Halaman sambutan
-def welcome_page(): #fungsi halaman welcome
-    st.title("Selamat Datang di Aplikasi Deteksi Bibit Lele")
-    st.write("Klik tombol di bawah ini untuk memulai.")
+def welcome_page():
+    st.markdown('<div class="container">', unsafe_allow_html=True)
+    
+    st.markdown('<h1 class="title">Selamat Datang di Aplikasi Deteksi Bibit Lele</h1>', unsafe_allow_html=True)
+    st.markdown('<p class="subtitle">Klik tombol di bawah ini untuk memulai.</p>', unsafe_allow_html=True)
     
     # Menambahkan logo aplikasi
-    logo_path = 'logo aplikasi.png' 
+    logo_path = 'logo aplikasi.png'
     if os.path.exists(logo_path):
-        st.image(logo_path, use_column_width=False, width=200)
-    
+        st.markdown(
+            f"""
+            <div class="center-logo">
+                <img src="data:image/png;base64,{base64.b64encode(open(logo_path, "rb").read()).decode()}" alt="Logo Aplikasi">
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    # Memusatkan tombol menggunakan CSS
     if st.button("Get Started"):
         st.session_state.page = 'main_app'
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # Fungsi utama untuk memproses gambar
 def process_image(image, templates, threshold=0.5):
@@ -105,8 +186,12 @@ def display_history():
 # Main app function
 def main_app():
     templates = load_templates()
-    st.title("Deteksi Jumlah Bibit Lele")
+    st.markdown('<h1 class="title">Deteksi Jumlah Bibit Lele</h1>', unsafe_allow_html=True)
+    
+    st.markdown('<div class="upload-section">', unsafe_allow_html=True)
     uploaded_file = st.file_uploader("Unggah gambar lele atau ambil gambar menggunakan kamera di bawah ini:", type=['jpg', 'jpeg', 'png'])
+    st.markdown('</div>', unsafe_allow_html=True)
+    
     if uploaded_file is not None:
         image = Image.open(uploaded_file)
         image = np.array(image)
@@ -116,9 +201,18 @@ def main_app():
         save_detection_results(count_lele)
     
     # Tampilkan history
+    st.markdown('<div class="history-section">', unsafe_allow_html=True)
     display_history()
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # Kontrol alur halaman dengan state page
+if 'page' not in st.session_state:
+    st.session_state['page'] = 'welcome'
+
+# Load CSS untuk styling
+load_css()
+
+# Pilihan halaman
 if st.session_state.page == 'welcome':
     welcome_page()
 elif st.session_state.page == 'main_app':
